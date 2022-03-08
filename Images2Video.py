@@ -99,20 +99,22 @@ def zoom_in_effect(clip, zoom_ratio=0.04):
 image = [ ]
 # get the path or directory
 folder_dir = os.getcwd()+"/images"
-
+types=[".png","jpg",".jpeg",".wpeg"]
 for images in os.listdir(folder_dir):
-
- # check if the image end swith png or jpg or jpeg
- if (images.endswith(".png") or images.endswith(".jpg")\
-        or images.endswith(".jpeg")):
-        image.append(images)
+     for i in types:
+          if images.endswith(i):        
+              image.append(images)
 
 
 clips=[]
 #Bluring Effect Function
 def blur(image):
-    """ Returns a blurred (radius=4 pixels) version of the image """
-    return gaussian(image.astype(float), sigma=4)
+    for list in rowsN:
+        blurvalue = int(list[10]) 
+        """ Returns a blurred (radius=4 pixels) version of the image """
+        return gaussian(image.astype(float), sigma = blurvalue )
+        
+#Fetching the Images from the folder Image
 
 for i in range(len(image)):
      filepath = "images/"+image[i]
@@ -127,24 +129,28 @@ for i in range(len(image)):
           
           clip = ImageClip("images/"+image[i] )\
           .set_duration(clip_duration)
-          clip = clip.set_position("center")
-          clip = clip.resize(width = cwidth , height = cheight)
-          if width>cwidth or height > cheight :
-             clip=clip.resize(width = cwidth , height=cheight)
+          clip = clip.set_position("center")  
+          twidth,theight = clip.size
+          if twidth > cwidth or theight > cheight or twidth < cwidth or theight < cheight:
+             clip = clip.fx( vfx.resize, width = cwidth )
+             
           back_clip = ImageClip("images/"+image[1])\
           .set_duration(clip_duration)
           back_clip = back_clip.fl_image( blur )
-          back_clip = back_clip.resize(width = cwidth,height=cheight)
+          back_clip = back_clip.fx( vfx.resize, width = cwidth )
           final = CompositeVideoClip([back_clip,clip])  
-                      
+                  
           final=final.set_duration(clip_duration)
+          
           value = final.start
      effect = random.choice(effects)
      pos = random.choice(slide)
      if effect == a or effect == b :
-        final = final.fx(effect, duration=effectDuration, side = pos)
+        final = final.fx(effect, duration = effectDuration, side = pos)
      else :
-        final = final.fx(effect, duration=effectDuration )
+        final = final.fx(effect, duration = effectDuration )
+        
+     final = final.fx( vfx.resize, width = cwidth )      
      clips.append(final)
 
 
@@ -184,10 +190,11 @@ for list  in  rows:
           set_duration(textDuration).crossfadein(2.0)
           final_clip2 = final_clip1.set_duration(textDuration) \
           .crossfadeout(2.0)
+          final_clip2 = final_clip2.fx( vfx.resize, newsize=(cwidth,txt_height+50) )
           
      texts.append(final_clip2)
 
-#Fetching the Images from the folder Image
+
 
 
 #Putting the all clips together to make it a ready for rendering
@@ -195,11 +202,20 @@ for list  in  rows:
 test=[]
 
 for (clip, text) in itertools.zip_longest(clips,texts): 
-     new_clip = CompositeVideoClip([clip,text])
-     new_clip = new_clip.set_duration(5)
-     test.append(new_clip)
+     for list in rowsN:
+         clip_duration = int(list[6])
+         cwidth = int(list[4]) 
+         cheight = int(list[5])
+         effectDuration = int(list[8])
+         new_clip = CompositeVideoClip([clip,text])
+         new_clip = new_clip.set_duration(clip_duration)
+         finalr = new_clip.fx( vfx.resize, newsize=(cwidth,cheight) )
+         
+        
+     test.append(finalr)
 
-video_clip = concatenate_videoclips(test,method="compose")
+
+
 
 #Rendering the  video for output Review and 
 #getting the data from the file name.csv
@@ -208,8 +224,12 @@ for list in rowsN:
      Fps = int(list[1])
      Codec = list[2]
      Audio_codec = list[3]
-     video_clip1=video_clip.resize(width=int(list[4]),height=int(list[5]))
-     video_clip1.write_videofile(VideoFileName,fps = Fps,\
+     
+     video_clip = concatenate_videoclips(test,method="compose")
+     final_clip = video_clip.fx( vfx.resize, newsize=(cwidth,cheight) )
+  
+     #video_clip=video_clip.resize(width = int(list),height = int(list[5]))
+     final_clip.write_videofile(VideoFileName,fps = Fps,\
      remove_temp=True,codec = Codec,audio_codec = Audio_codec)
-
+     
 

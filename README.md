@@ -8,31 +8,35 @@ install the package installer pip for python
  
 sudo apt-get -y install python3-pip
 
-moviepy liberary must be installed to install moviepy run command
+### moviepy liberary must be installed to install moviepy run command
 
-pip install moviepy
-install imagemagick run the following command
+pip install moviepy 
+<br>
+### install imagemagick run the following command
+<br>
+
 sudo apt install imagemagick
 
 goto ---- /etc/ImageMagick-6/policy.xml file  
+
 In the file comment out the line
 
 "policy domain="path" rights="none" pattern="@*" 
   you can found this at the bottom part of the file
 
-Install scikit-image
+### Install scikit-image
 
 pip install -U scikit-image
 
-install pillow using command as follow
+### install pillow using command as follow
 
 python3 -m pip install --upgrade Pillow
 
 1. Put the Images in the images folder
 2. Update the CSv file for text in the video.
-3. Run the command --> chmod +x filename.py
+3. Run the command --> chmod +x Images2Video.py (defaultname is Images2Video.py)
 4. This will make it executable
-5. Run command python3 filename.py
+5. Run command python3 Images2Video.py
 6. play the video from folder
 
 # For Windows OS
